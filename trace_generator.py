@@ -8,7 +8,7 @@ import sys
 
 
 class trace_generator:
-    def __init__(self, start_time=-4.*5, end_time=4.*45, sampling_time=4., nsb_rate=660,
+    def __init__(self, start_time=-4.*10, end_time=4.*50, sampling_time=4., nsb_rate=660,
                  mean_crosstalk_production=0.08, debug=False, gain_nsb_dependency=False, n_signal_photon=0.,
                  sig_poisson= True, sigma_e = 0.7769 / 9.6 * 4., gain = 5.6 , sigma_1=0.8921 / 9.6 ):
 
@@ -87,7 +87,7 @@ class trace_generator:
         self.generate_photon_smearing()
         self.compute_analog_signal()
         self.convert_to_digital()
-        return self.n_signal_photon,self.nsb_rate,self.adc_count
+        #return self.n_signal_photon,self.nsb_rate,self.adc_count
 
     def get_adc_count(self):
 
