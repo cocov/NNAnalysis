@@ -18,10 +18,16 @@ def createChunk(options,tr):
         tr.nsb_rate = ((np.random.random_sample() * (options.nsb_range[1]-options.nsb_range[0]))+options.nsb_range[0]) * 1e-3
         tr.n_signal_photon = int((np.random.random_sample() * (options.photon_range[1]-options.photon_range[0]))+options.photon_range[0])
         event = next(tr)
-        n_photons,axis  = np.histogram(tr.photon_arrival_time,
+        ravelled_arrival = []
+        for k,t0 in enumerate(tr.photon_arrival_time):
+            for kk in range(int(round(tr.photon[k]))):
+                ravelled_arrival.append(t0)
+
+        n_photons,axis  = np.histogram(ravelled_arrival,
                                   bins=np.arange(options.photon_times[0],
                                                  options.photon_times[1]+options.photon_times[2]+options.target_segmentation,
                                                  options.target_segmentation))
+
         n_adcs = tr.adc_count.repeat(int(np.round(options.photon_times[2]/options.target_segmentation)))
         if type(traces).__name__ == 'ndarray':
             traces = np.append(traces,n_adcs.reshape((1,)+n_adcs.shape),axis=0)
@@ -75,25 +81,25 @@ if __name__ == '__main__':
     # Job configuration
     parser = OptionParser()
     parser.add_option("-n", "--evt_max", dest="evt_max",
-                      help="maximal number of events", default=10000, type=int)
+                      help="maximal number of events", default=100000, type=int)
 
     parser.add_option("--batch_max", dest="batch_max",
-                      help="maximal number of events for batch in memory", default=500, type=int)
+                      help="maximal number of events for batch in memory", default=1000, type=int)
 
     parser.add_option("-d", "--directory", dest="directory",
                       help="Output directory", default="/data/datasets/CTA/ToyNN/")
 
     parser.add_option("-f", "--filename", dest="filename",
-                      help="Output file name", default="train_0_100_0")
+                      help="Output file name", default="train_0_200_0")
 
     parser.add_option("-p", "--photon_range", dest="photon_range",
-                      help="range of signal photons", default="0,0.1")
+                      help="range of signal photons", default="0.,0.1")
 
     parser.add_option("-b", "--nsb_range", dest="nsb_range",
-                      help="range of NSB", default="0.,100.")
+                      help="range of NSB", default="0.,200.")
 
     parser.add_option("--photon_times", dest="photon_times",
-                      help="arrival time range", default="-40.,200.,4")
+                      help="arrival time range", default="-150.,150.,4")
 
     parser.add_option("--target_segmentation", dest="target_segmentation",
                       help="arrival time range", default="2")
@@ -104,7 +110,7 @@ if __name__ == '__main__':
     options.nsb_range = [float(n) for n in options.nsb_range.split(',')]
     options.target_segmentation = float(options.target_segmentation)
     # Create the trace generator
-    tr = trace_generator(sig_poisson=False)
+    tr = trace_generator(start_time=options.photon_times[0],end_time=options.photon_times[1],sig_poisson=False)
     # Create the file
     filename = options.directory + options.filename
     createFile( options,tr , filename)

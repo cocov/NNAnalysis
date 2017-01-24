@@ -87,6 +87,8 @@ class trace_generator:
         self.generate_photon_smearing()
         self.compute_analog_signal()
         self.convert_to_digital()
+
+        yield np.append(self.photon_arrival_time ,self.photon,axis=0), self.adc_count
         #return self.n_signal_photon,self.nsb_rate,self.adc_count
 
     def get_adc_count(self):
@@ -94,7 +96,6 @@ class trace_generator:
         return self.adc_count
 
     def add_signal_photon(self):
-
         self.photon_arrival_time[0] = np.random.random_sample()*self.sampling_time
         self.photon[0] = np.random.poisson(self.n_signal_photon) if self.sig_poisson else self.n_signal_photon
 
@@ -348,10 +349,15 @@ if __name__ == '__main__':
             print( 'file named : ' + filename + ' already exists')
             sys.exit("Error message")
 
-    for i in range(int(N_forced_trigger)):
-        adc_count.append(
-            Trace_Generator(start_time, end_time, sampling_time, nsb_rate, mean_crosstalk_production, debug, False,
-                            n_cherenkov_photon).adc_count)
+    tr = Trace_Generator(start_time, end_time, sampling_time, nsb_rate,
+                         mean_crosstalk_production, debug, False,n_cherenkov_photon)
+    i = 0
+    for ph_true, adcs in tr:
+        if i == 10: break
+        print(ph_true.shape)
+        print(adcs)
+        adc_count.append(adcs)
+        i+=1
 
     adc_count = np.asarray(adc_count)
 
