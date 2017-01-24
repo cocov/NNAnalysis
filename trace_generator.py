@@ -88,7 +88,7 @@ class trace_generator:
         self.compute_analog_signal()
         self.convert_to_digital()
 
-        yield np.append(self.photon_arrival_time ,self.photon,axis=0), self.adc_count
+        #yield np.append(self.photon_arrival_time ,self.photon,axis=0), self.adc_count
         #return self.n_signal_photon,self.nsb_rate,self.adc_count
 
     def get_adc_count(self):

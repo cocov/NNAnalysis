@@ -17,7 +17,7 @@ def createChunk(options,tr):
     while ii < chunkSize:
         tr.nsb_rate = ((np.random.random_sample() * (options.nsb_range[1]-options.nsb_range[0]))+options.nsb_range[0]) * 1e-3
         tr.n_signal_photon = int((np.random.random_sample() * (options.photon_range[1]-options.photon_range[0]))+options.photon_range[0])
-        event = next(tr)
+        next(tr)
         ravelled_arrival = []
         for k,t0 in enumerate(tr.photon_arrival_time):
             for kk in range(int(round(tr.photon[k]))):
