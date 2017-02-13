@@ -50,11 +50,13 @@ def createFile( options,tr , filename ):
 
     chunks = createChunk(options,tr)
 
+
     f = h5py.File(filename+'.hdf5', 'w')
     f.create_dataset('traces', data=chunks[0], chunks=True, maxshape=(None,chunks[0].shape[1],chunks[0].shape[2]))
     f.create_dataset('labels', data=chunks[1], chunks=True, maxshape=(None,chunks[1].shape[1],chunks[1].shape[2]))
     traces_dataset = f['traces']
     labels_dataset = f['labels']
+
 
     nChunks = finalSize // chunckSize
     for i in range(nChunks):
@@ -74,7 +76,7 @@ def createFile( options,tr , filename ):
 
 if __name__ == '__main__':
     from optparse import OptionParser
-    from trace_generator import trace_generator
+    from trace_generator import TraceGenerator
     import numpy as np
     import h5py
 
@@ -90,19 +92,21 @@ if __name__ == '__main__':
                       help="Output directory", default="/data/datasets/CTA/ToyNN/")
 
     parser.add_option("-f", "--filename", dest="filename",
-                      help="Output file name", default="train_0_200_0")
+                      help="Output file name", default="test_kde_large_withsig")
 
     parser.add_option("-p", "--photon_range", dest="photon_range",
-                      help="range of signal photons", default="0.,0.1")
+                      help="range of signal photons", default="0.,100")
 
     parser.add_option("-b", "--nsb_range", dest="nsb_range",
-                      help="range of NSB", default="0.,200.")
+                      help="range of NSB", default="0.9,100.")
 
     parser.add_option("--photon_times", dest="photon_times",
                       help="arrival time range", default="-150.,150.,4")
 
     parser.add_option("--target_segmentation", dest="target_segmentation",
-                      help="arrival time range", default="2")
+                      help="arrival time range", default="4")
+
+
 
     (options, args) = parser.parse_args()
     options.photon_range = [float(n) for n in options.photon_range.split(',')]
@@ -110,7 +114,7 @@ if __name__ == '__main__':
     options.nsb_range = [float(n) for n in options.nsb_range.split(',')]
     options.target_segmentation = float(options.target_segmentation)
     # Create the trace generator
-    tr = trace_generator(start_time=options.photon_times[0],end_time=options.photon_times[1],sig_poisson=False)
+    tr = TraceGenerator(start_time=options.photon_times[0],end_time=options.photon_times[1],sig_poisson=False)
     # Create the file
     filename = options.directory + options.filename
     createFile( options,tr , filename)

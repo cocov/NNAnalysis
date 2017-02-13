@@ -22,29 +22,33 @@ def load_data(datapath, train_start, n_training_examples, n_test_examples):
     return X_train, y_train, X_test, y_test
 
 
-X_train, Y_train, X_valid, Y_valid = load_data('/data/datasets/CTA/ToyNN/train_0_200_0.hdf5', 0, 18000, 2000)
+X_train, Y_train, X_valid, Y_valid = load_data('/data/datasets/CTA/ToyNN/test_kde_large_withsig.hdf5', 0, 20000, 2000)
 in_size,out_size = X_train.shape[1],Y_train.shape[1]
 print(X_train.shape,Y_train.shape,X_valid.shape,Y_valid.shape)
 
 # expected input data shape: (batch_size, timesteps, data_dim)
 '''
-model = Sequential()
-model.add(Dropout(0.5))
-model.add(Bidirectional(LSTM(50,return_sequences=True),batch_input_shape=(None,in_size,1),name='bidir_0'))
-#model.add(Dropout(0.5))
-#model.add(Reshape((out_size,50)))
-model.add(Dense(10, activation='relu'))
-model.add(Bidirectional(LSTM(10,return_sequences=True),name='bidir_1'))
+model.add(Bidirectional(LSTM(10,return_sequences=True),name='bidir_0',batch_input_shape=(None,in_size,1)))
+model.add(Dropout(0.2))
 model.add(Dense(10, activation='relu'))
 model.add(Dense(1, activation='linear'))
 '''
+
+'''
 model = Sequential()
+
 #model.add(Dropout(0.5,batch_input_shape=(None,in_size,1)))
-model.add(Bidirectional(LSTM(50,return_sequences=True),name='bidir_0'))
-#model.add(Dropout(0.2))
-#model.add(Bidirectional(LSTM(10,return_sequences=True),name='bidir_1'))
-#model.add(Dropout(0.2))
-#model.add(Dense(10, activation='relu'))
+#model.add(Embedding())
+model.add(Bidirectional(LSTM(20,return_sequences=True),name='bidir_0',batch_input_shape=(None,in_size,1)))
+model.add(Dropout(0.2))
+model.add(Dense(10, activation='relu'))
+model.add(Dense(1, activation='linear'))
+'''
+
+model = Sequential()
+model.add(Bidirectional(LSTM(20,return_sequences=True),name='bidir_0'))
+model.add(Dropout(0.2))
+model.add(Dense(10, activation='relu'))
 model.add(Dense(1, activation='linear'))
 
 model.summary()
@@ -55,13 +59,13 @@ model.compile(loss=custom_mean_squared_error, optimizer=optimiser)
 
 
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2,patience=5, min_lr=0.001)
-model.fit(X_train, Y_train, nb_epoch=20, batch_size=300, verbose=2,
-          validation_data = [X_valid,Y_valid] ,shuffle='batch')
-          #,callbacks=[reduce_lr])
+model.fit(X_train, Y_train, nb_epoch=120, batch_size=100, verbose=2,
+          validation_data = [X_valid,Y_valid] ,shuffle='batch',callbacks=[reduce_lr])
 
 #score = model.evaluate(X_valid, Y_valid)
 #print(score)
-model.save('mymodel.h5')
+model.save('mymodel_large_signal.h5',overwrite=True)
+model.save_weights('mymodel_weights_large_signal.h5',overwrite=True)
 
 plt.ion()
 
@@ -72,13 +76,13 @@ for i in range(100):
     x = x.reshape((1,)+x.shape)
     y = y.reshape((1,)+y.shape)
     pred = model.predict(x)
-    y = y.reshape((152,))
-    x = x.reshape((152,))
-    pred = pred.reshape((152,))
+    y = y.reshape((76,))
+    x = x.reshape((76,))
+    pred = pred.reshape((76,))
     plt.cla()
     plt.clf()
-    plt.step(np.arange(-150,150+4,2),x)
-    plt.step(np.arange(-150,150+4,2),y)
-    plt.step(np.arange(-150,150+4,2),pred)
+    plt.step(np.arange(-150,150+4,4),x)
+    plt.step(np.arange(-150,150+4,4),y)
+    plt.step(np.arange(-150,150+4,4),pred)
     plt.show()
     fk = input('bla')
