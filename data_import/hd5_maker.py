@@ -1,9 +1,3 @@
-import numpy as np
-import h5py
-
-
-
-
 def createChunk(options,tr):
     """
     Create a data chunck
@@ -76,7 +70,7 @@ def createFile( options,tr , filename ):
 
 if __name__ == '__main__':
     from optparse import OptionParser
-    from trace_generator import TraceGenerator
+    from data_import.trace_generator import TraceGenerator
     import numpy as np
     import h5py
 

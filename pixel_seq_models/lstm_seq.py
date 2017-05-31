@@ -1,0 +1,33 @@
+from keras.models import Sequential
+from keras.layers.core import Dense,  Dropout
+from keras.layers.recurrent import  LSTM
+from keras.layers import  Bidirectional
+
+class LSTM_Seq(Sequential) :
+    def __init__(self,optimizer,loss):
+        Sequential.__init()
+        self.add(Bidirectional(LSTM(50, return_sequences=True), name='bidir_0'))
+        self.add(Dropout(0.2))
+        self.add(Dense(10, activation='relu'))
+        self.add(Dense(1, activation='linear'))
+        self.compile(optimizer=optimizer,loss=loss)
+
+    def train(self, data, **kwargs):
+        """
+        Wrapper around the fit function
+        :param data: data dictionnary
+        :param kwargs:
+        :return:
+        """
+        self.fit(data['train']['input'], data['train']['label'],
+                 validation_data=[data['test']['input'], data['test']['label']], **kwargs)
+
+    def save(self,name_tag, folder = '.'):
+        """
+        Wrapper around the fit function
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        self.save('%s/%s_model.h5'%(folder,name_tag), overwrite=True)
+        self.save_weights('%s/%s_weights.h5'%(folder,name_tag), overwrite=True)
