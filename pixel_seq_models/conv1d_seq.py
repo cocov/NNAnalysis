@@ -6,7 +6,7 @@ from keras.layers import Conv1D, GlobalAveragePooling1D, MaxPooling1D
 class Conv1DModel(Sequential) :
     def __init__(self,optimizer,loss,metric):
 
-        Sequential.__init()
+        Sequential.__init__()
         self.add(Conv1D(64, 3, activation='relu', input_shape=(seq_length, 100)))
         self.add(Conv1D(64, 3, activation='relu'))
         self.add(MaxPooling1D(3))

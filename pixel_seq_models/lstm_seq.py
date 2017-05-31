@@ -2,6 +2,7 @@ from keras.models import Sequential
 from keras.layers.core import Dense,  Dropout
 from keras.layers.recurrent import  LSTM
 from keras.layers import  Bidirectional
+from keras.models import load_model
 
 class LSTM_Seq(Sequential) :
     def __init__(self,optimizer,loss,input_size):
@@ -22,12 +23,13 @@ class LSTM_Seq(Sequential) :
         self.fit(data['train']['input'], data['train']['label'],
                  validation_data=[data['test']['input'], data['test']['label']], **kwargs)
 
-    def save(self,name_tag, folder = '.'):
+    def save_model(self,name_tag, folder = '.'):
         """
         Wrapper around the fit function
         :param data:
         :param kwargs:
         :return:
         """
-        self.save('%s/%s_model.h5'%(folder,name_tag), overwrite=True)
-        self.save_weights('%s/%s_weights.h5'%(folder,name_tag), overwrite=True)
+        super(Sequential, self).save('%s/%s_model.h5'%(folder,name_tag), overwrite=True)
+        super(Sequential, self).save_weights('%s/%s_weights.h5'%(folder,name_tag), overwrite=True)
+

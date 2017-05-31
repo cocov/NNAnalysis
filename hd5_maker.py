@@ -86,10 +86,10 @@ if __name__ == '__main__':
                       help="Output directory", default="/data/datasets/CTA/ToyNN/")
 
     parser.add_option("-f", "--filename", dest="filename",
-                      help="Output file name", default="test_kde_large_withsig")
+                      help="Output file name", default="test_nsb")
 
     parser.add_option("-p", "--photon_range", dest="photon_range",
-                      help="range of signal photons", default="0.,100")
+                      help="range of signal photons", default="0.,0.1")
 
     parser.add_option("-b", "--nsb_range", dest="nsb_range",
                       help="range of NSB", default="40.,80.")

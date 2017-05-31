@@ -16,9 +16,10 @@ def check_model(data,model,n_display=100):
         pred = pred.reshape((76,))
         plt.cla()
         plt.clf()
-        plt.step(np.arange(-150, 150 + 4, 4), x)
-        plt.step(np.arange(-150, 150 + 4, 4), y)
-        plt.step(np.arange(-150, 150 + 4, 4), pred)
+        plt.step(np.arange(-150, 150 + 4, 4), x,label='Input trace')
+        plt.step(np.arange(-150, 150 + 4, 4), y,label='True Photons')
+        plt.step(np.arange(-150, 150 + 4, 4), pred,label='Predicted Photons')
+        plt.legend()
         plt.show()
         fk = input('bla')
 
