@@ -77,7 +77,7 @@ if __name__ == '__main__':
     # Job configuration
     parser = OptionParser()
     parser.add_option("-n", "--evt_max", dest="evt_max",
-                      help="maximal number of events", default=100000, type=int)
+                      help="maximal number of events", default=10000, type=int)
 
     parser.add_option("--batch_max", dest="batch_max",
                       help="maximal number of events for batch in memory", default=1000, type=int)
@@ -92,7 +92,7 @@ if __name__ == '__main__':
                       help="range of signal photons", default="0.,100")
 
     parser.add_option("-b", "--nsb_range", dest="nsb_range",
-                      help="range of NSB", default="0.9,100.")
+                      help="range of NSB", default="40.,80.")
 
     parser.add_option("--photon_times", dest="photon_times",
                       help="arrival time range", default="-150.,150.,4")

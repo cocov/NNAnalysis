@@ -4,9 +4,9 @@ from keras.layers.recurrent import  LSTM
 from keras.layers import  Bidirectional
 
 class LSTM_Seq(Sequential) :
-    def __init__(self,optimizer,loss):
-        Sequential.__init()
-        self.add(Bidirectional(LSTM(50, return_sequences=True), name='bidir_0'))
+    def __init__(self,optimizer,loss,input_size):
+        Sequential.__init__(self)
+        self.add(Bidirectional(LSTM(50, return_sequences=True), name='bidir_0',batch_input_shape=(None,input_size,1)))
         self.add(Dropout(0.2))
         self.add(Dense(10, activation='relu'))
         self.add(Dense(1, activation='linear'))

@@ -8,7 +8,7 @@ import numpy as np
 import os
 import scipy.interpolate
 
-filename_pulse_shape = 'pulse_SST-1M_AfterPreampLowGain.dat'  # pulse shape template file
+filename_pulse_shape = '/data/software/NNAnalysis/data_import/pulse_SST-1M_AfterPreampLowGain.dat'  # pulse shape template file
 
 
 
@@ -57,7 +57,7 @@ class TraceGenerator:
         self.n_signal_photon = n_signal_photon  # number of Cherenkov photons
         self.sig_poisson = sig_poisson # is the number of signal photons distributed as a poisson?
 
-        self.filename_pulse_shape = 'pulse_SST-1M_AfterPreampLowGain.dat'  # pulse shape template file
+        self.filename_pulse_shape = filename_pulse_shape  # pulse shape template file
         self.pe_to_adc = gain
         self.sigma_1 = sigma_1  # spread due to charge resolution in photocounting
         self.sigma_e = sigma_e  # electronic spread in analog to digital conversion
