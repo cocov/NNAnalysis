@@ -140,6 +140,7 @@ if __name__ == '__main__':
     num_events  = 0
     num_hadrons = 0
     num_gammas  = 0
+    num_src_events = 0
     
     if (gamma_end == False) or (hadron_end == False):
         out_file = h5py.File(out_filename, 'w')
@@ -149,18 +150,19 @@ if __name__ == '__main__':
         gammas  = HDF5Matrix(out_filename+".gtmp", 'traces')
         while True:
             try:
-                this_hadron = hadrons[num_events]
-                this_gamma  = gammas[num_events]    
+                this_hadron = hadrons[num_src_events]
+                this_gamma  = gammas[num_src_events]    
                 traces.resize(num_events+2, axis=0)
                 labels.resize(num_events+2, axis=0)
                 traces[num_events, ] = np.squeeze(this_hadron)
                 traces[num_events+1, ] = np.squeeze(this_gamma)
                 labels[num_events, ] = [0,1]
                 labels[num_events+1, ] = [1,0]
-                num_events  = num_events + 1
+                num_events  = num_events + 2
+                num_src_events = num_src_events + 1
                 num_gammas  = num_gammas + 1
                 num_hadrons = num_hadrons + 1
-                stdout.write("\rMerging evt. %d" % (num_events*2))
+                stdout.write("\rMerging evt. %d" % num_events)
             except IndexError:
                 out_file.close()
                 break
