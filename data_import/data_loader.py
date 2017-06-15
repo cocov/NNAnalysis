@@ -5,18 +5,18 @@ class DataLoader:
     """
     Class to handle HDF5 data for testing and training purpose
     """
-    def __init__(self,datapath):
+    def __init__(self,datapath,labels = ['input','label'],):
 
         self.data_file_name  = datapath
         self.n_training      = -1
         self.n_testing       = -1
         self.train_start     = 0
         self.test_start      = -1
-        self.data            = {'train': {'input': None,
-                                          'label': None},
-                                'test': {'input': None,
-                                         'label': None}
-                                }
+        self.data = {'train':{},'test': {}}
+        self.labels = labels
+        for l in labels:
+            self.data['train'][l] = None
+            self.data['test' ][l] = None
 
     def load(self,n_training, n_testing, train_start = 0 , test_start = -1 ):
         """
@@ -29,18 +29,12 @@ class DataLoader:
                                                        start where the training sample stop)
         :return:
         """
-
         self.n_training   = n_training
         self.n_testing    = n_testing
         self.train_start  = train_start
         self.test_start   = test_start if test_start > -0.5 else self.train_start + self.n_training
-
-        self.data['train']['input'] = \
-            HDF5Matrix(self.data_file_name, 'traces', self.train_start, self.train_start + self.n_training)
-        self.data['train']['label'] = \
-            HDF5Matrix(self.data_file_name, 'labels', self.train_start, self.train_start + self.n_training)
-        self.data['test']['input'] = \
-            HDF5Matrix(self.data_file_name, 'traces', self.test_start, self.test_start + self.n_testing)
-        self.data['test']['label'] = \
-            HDF5Matrix(self.data_file_name, 'labels', self.test_start, self.test_start + self.n_testing)
-
+        for l in self.labels:
+            self.data['train'][l] = \
+                HDF5Matrix(self.data_file_name, l, self.train_start, self.train_start + self.n_training)
+            self.data['test'][l] = \
+                HDF5Matrix(self.data_file_name, l, self.test_start, self.test_start + self.n_testing)

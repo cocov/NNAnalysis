@@ -1,3 +1,5 @@
+from keras.utils import np_utils
+
 def createChunk(options,tr):
     """
     Create a data chunck
@@ -21,8 +23,9 @@ def createChunk(options,tr):
                                   bins=np.arange(options.photon_times[0],
                                                  options.photon_times[1]+options.photon_times[2]+options.target_segmentation,
                                                  options.target_segmentation))
+        n_photons=np_utils.to_categorical(n_photons,20)
 
-        n_adcs = tr.adc_count.repeat(int(np.round(options.photon_times[2]/options.target_segmentation)))
+        n_adcs = tr.adc_count.repeat(int(np.round(options.photon_times[2]/4)))
         if type(traces).__name__ == 'ndarray':
             traces = np.append(traces,n_adcs.reshape((1,)+n_adcs.shape),axis=0)
             labels = np.append(labels,n_photons.reshape((1,)+n_photons.shape),axis=0)
@@ -30,7 +33,7 @@ def createChunk(options,tr):
             traces = n_adcs.reshape((1,)+n_adcs.shape)
             labels = n_photons.reshape((1,)+n_photons.shape)
         ii+=1
-    return traces.reshape(traces.shape+(1,)),labels.reshape(labels.shape+(1,))
+    return traces.reshape(traces.shape),labels.reshape(labels.shape)
 
 
 
@@ -46,7 +49,7 @@ def createFile( options,tr , filename ):
 
 
     f = h5py.File(filename+'.hdf5', 'w')
-    f.create_dataset('traces', data=chunks[0], chunks=True, maxshape=(None,chunks[0].shape[1],chunks[0].shape[2]))
+    f.create_dataset('traces', data=chunks[0], chunks=True, maxshape=(None,chunks[0].shape[1]))
     f.create_dataset('labels', data=chunks[1], chunks=True, maxshape=(None,chunks[1].shape[1],chunks[1].shape[2]))
     traces_dataset = f['traces']
     labels_dataset = f['labels']
@@ -56,7 +59,7 @@ def createFile( options,tr , filename ):
     for i in range(nChunks):
         print("Progress {:2.1%}".format(float(i*options.batch_max) / options.evt_max), end="\r")
         chunks = createChunk(options,tr)
-        newshape = [traces_dataset.shape[0] + chunks[0].shape[0],chunks[0].shape[1],chunks[0].shape[2]]
+        newshape = [traces_dataset.shape[0] + chunks[0].shape[0],chunks[0].shape[1]]
         traces_dataset.resize(newshape)
         newshape_label = [labels_dataset.shape[0] + chunks[1].shape[0],chunks[1].shape[1],chunks[1].shape[2]]
         labels_dataset.resize(newshape_label)
@@ -86,19 +89,19 @@ if __name__ == '__main__':
                       help="Output directory", default="/data/datasets/CTA/ToyNN/")
 
     parser.add_option("-f", "--filename", dest="filename",
-                      help="Output file name", default="test_nsb")
+                      help="Output file name", default="test_nsb_binned_cat")
 
     parser.add_option("-p", "--photon_range", dest="photon_range",
                       help="range of signal photons", default="0.,0.1")
 
     parser.add_option("-b", "--nsb_range", dest="nsb_range",
-                      help="range of NSB", default="40.,80.")
+                      help="range of NSB", default="250.,250.")
 
     parser.add_option("--photon_times", dest="photon_times",
                       help="arrival time range", default="-150.,150.,4")
 
     parser.add_option("--target_segmentation", dest="target_segmentation",
-                      help="arrival time range", default="4")
+                      help="arrival time range", default="0.5")
 
 
 

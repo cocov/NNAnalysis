@@ -17,7 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load the data
-loader = DataLoader('./ToyNN/test_nsb.hdf5')
+loader = DataLoader('/data/datasets/CTA/ToyNN/test_nsb.hdf5')
 loader.load(n_training=9000, n_testing=1000, train_start=0)
 
 #dimensions reduction to feed to Dense layers directly
@@ -46,7 +46,7 @@ model.summary()
 early_stop = EarlyStopping(monitor='val_loss', min_delta=0.001, patience=50, verbose=2, mode='min')
 history = model.fit(train_input, train_label,
           validation_data=[test_input, test_label], 
-          epochs=1000, batch_size=1000, verbose=2,shuffle='batch', callbacks=[early_stop])
+          nb_epoch=1000, batch_size=1000, verbose=2,shuffle='batch', callbacks=[early_stop])
 
 print(history.history.keys())
 

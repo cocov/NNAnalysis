@@ -6,12 +6,16 @@ from keras.models import load_model
 
 class LSTM_Seq(Sequential) :
     def __init__(self,optimizer,loss,input_size):
+
         Sequential.__init__(self)
         self.add(Bidirectional(LSTM(50, return_sequences=True), name='bidir_0',batch_input_shape=(None,input_size,1)))
+        #self.add(LSTM(50, return_sequences=True, name='singdir_0',batch_input_shape=(None,input_size,1)))
         self.add(Dropout(0.2))
         self.add(Dense(10, activation='relu'))
         self.add(Dense(1, activation='linear'))
         self.compile(optimizer=optimizer,loss=loss)
+
+
 
     def train(self, data, **kwargs):
         """
@@ -33,3 +37,14 @@ class LSTM_Seq(Sequential) :
         super(Sequential, self).save('%s/%s_model.h5'%(folder,name_tag), overwrite=True)
         super(Sequential, self).save_weights('%s/%s_weights.h5'%(folder,name_tag), overwrite=True)
 
+    '''
+    def load_model(self, name_tag, folder='.', **kwargs):
+        """
+        Wrapper around the fit function
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        #find how to contruct this one...
+        super(Sequential, self) = load_model('%s/%s_model.h5' % (folder, name_tag), **kwargs)
+    '''
