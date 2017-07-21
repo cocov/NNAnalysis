@@ -2,6 +2,8 @@
 Created on 3 Jul 2017
 
 @author: lyard
+This is 3Dminiception, a modified version of inceptionV3 that takes 56x56x25 images as an 
+input with a single channel.
 '''
 
 from keras.optimizers import Adadelta
@@ -14,27 +16,36 @@ from keras.layers import BatchNormalization
 from keras.layers import Activation
 from keras.layers import Input
 from keras.layers import AveragePooling2D
-from keras import layers
 
 from keras.layers import Conv3D
 from keras.layers import MaxPooling3D
 from keras.layers import Reshape
 
+from keras        import layers
+
 from keras.models import Model
-
 from keras.models import Sequential
-
 from keras.models import load_model
 
 import h5py
 
 from keras.utils.io_utils import HDF5Matrix
-from keras.callbacks import EarlyStopping
+from keras.callbacks      import EarlyStopping
 
 import numpy as np
 
 from optparse import OptionParser
 
+#############################################################
+#Create a normalized conv 2D with relu activation
+#param x the current model
+#param filters the number of filters to output
+#param num_row height of the input matrix
+#param num_col width of the input matrix
+#param strides the stride to apply for this convolution
+#param padding which padding to apply for the output data
+#param name the name to give to this model
+#############################################################
 def normalized_conv2d(x, filters, num_row, num_col, strides=(1,1), padding='same', name=None):
     
     if name is not None:
@@ -52,6 +63,17 @@ def normalized_conv2d(x, filters, num_row, num_col, strides=(1,1), padding='same
     
     return x
     
+#############################################################
+#Create a normalized conv 3D with relu activation
+#param x the current model
+#param filters the number of filters to output
+#param num_row height of the input data cube
+#param num_col width of the input data cube
+#param num_depth depth of the input data cube
+#param strides the stride to apply for this convolution
+#param padding which padding to apply for the output data
+#param name the name to give to this model
+#############################################################
 def normalized_conv3d(x, filters, num_row, num_col, num_depth, strides=(1,1,1), padding='same', name=None):
     if name is not None:
         bn_name   = name+ 'bn'
@@ -68,6 +90,10 @@ def normalized_conv3d(x, filters, num_row, num_col, num_depth, strides=(1,1,1), 
     
     return x
 
+#############################################################
+#Create a 3Dminiception model
+#param input_shape the input shape to use
+#############################################################
 def make_mini_inception(input_shape):
      
     image_input = Input(shape=input_shape)                           #56,56,25,2
@@ -197,42 +223,49 @@ def make_mini_inception(input_shape):
     
 if __name__ == '__main__':
     
+    #parse options and retrieve values
     opts_parser = OptionParser()
-    opts_parser.add_option("-t", "--training", dest="input", help="training dataset", default="", type=str)
-    opts_parser.add_option("-v", "--validation", dest="valid", help="validation dataset", default="", type=str)
-    opts_parser.add_option("-m", "--model", dest="load", help="start from reloaded model", default="", type=str)
-    opts_parser.add_option("-s", "--save", dest="save", help="save trained model to target file", default="", type=str)
-    opts_parser.add_option("-e", "--epochs", dest="epochs", help="number of epochs to do", default="20", type=int)
+    opts_parser.add_option("-t", "--training",   dest="input",  help="training dataset",                  default="",   type=str)
+    opts_parser.add_option("-v", "--validation", dest="valid",  help="validation dataset",                default="",   type=str)
+    opts_parser.add_option("-m", "--model",      dest="load",   help="start from reloaded model",         default="",   type=str)
+    opts_parser.add_option("-s", "--save",       dest="save",   help="save trained model to target file", default="",   type=str)
+    opts_parser.add_option("-e", "--epochs",     dest="epochs", help="number of epochs to do",            default="20", type=int)
     
     (options, args) = opts_parser.parse_args()
-    
     training_file   = options.input
     validation_file = options.valid
-    
-    num_epochs = options.epochs
+    num_epochs      = options.epochs
+    model_file      = options.load
+    target_file     = options.save
 
-    model_file  = options.load
-    target_file = options.save
-
+    #open training data
     data   = HDF5Matrix(training_file, 'traces')
     labels = HDF5Matrix(training_file, 'labels')
     
-    valid_data = HDF5Matrix(validation_file, 'traces')
+    #open validation data
+    valid_data   = HDF5Matrix(validation_file, 'traces')
     valid_labels = HDF5Matrix(validation_file, 'labels')
 
+    #create 3D miniception
     model = make_mini_inception(input_shape=(56, 56, 25, 1))
  
+    #compile and print model summary
     model.compile(optimizer='adadelta', loss='binary_crossentropy', metrics=['accuracy'])
     model.summary()
     
+    #load a model, if any
     if model_file != "":
         model = load_model(model_file)
         print("Reloaded model from " + model_file)
 
+    #train the model
+    #TODO add a callback to save the model at each epoch
     early_stop = EarlyStopping(monitor='val_loss', min_delta=0.001, patience=100, verbose=2, mode='min')
     history = model.fit(data, labels, validation_data=[valid_data, valid_labels], 
                         epochs=num_epochs, batch_size=100, verbose=2, shuffle='batch', callbacks=[early_stop])
 
+    #save the model if needed
+    #TODO replace that by the callback to save the model at each epoch
     if target_file != "":
         model.save(target_file, True)
         print("wrote model to " + target_file)
@@ -240,6 +273,7 @@ if __name__ == '__main__':
             if 'optimizer_weights' in f.keys():
                 del f['optimizer_weights']
 
+    #test the validation data and display predicted vs true values
     num_true = 0
     for i in range(valid_data.shape[0]):
         sample = np.reshape(valid_data[i], (1,) + valid_data[i].shape)
